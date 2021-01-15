@@ -42,14 +42,14 @@
     var spriteWidth = 74;
     var spriteHeight = 86;
     var img = new Image();
-
-	var imgCrate = new Image();
-	var imgCrate2 = new Image();
+	//arrays to hold the boxes and special boxes
 	var boxes = [];
 	var specialBoxes = [];
 	var dirNum=1;
 	
-
+	//images
+	var imgCrate = new Image();
+	var imgCrate2 = new Image();
 	var imgPoint = new Image();
 	var dmgPoint = new Image();
 	var energyImg = new Image();
@@ -58,6 +58,7 @@
 	var mvButton = new Image();
 	var spcButton = new Image();
 	
+	//point boxes go to collect points
 	var placePoint = {
 			x: 440,
 			y: (Math.floor((Math.random() * 6) + 2))*20,
@@ -74,22 +75,23 @@
 
 	var mouseX;
 	var mouseY;
+	//button images
 	var playImage = new Image();
 	var menuImage = new Image();
 	var quit = new Image();
-	
-	var gameOver = false;
-	var resetMenu = false;
-	var enableBut = false;
-	var butPush = false;
-	var push = false;
+	//booleans
+	var gameOver = false;	//if level is complete via death/score
+	var resetMenu = false;	//used to identify if menu is to be reset
+	var enableBut = false;	//enables buttons in main game level for movements
+	var butPush = false;	//checks if button pushed
+	var push = false;	//checks if pushing box
 	var buttonClicked; //if value is 1 then its the play button is clicked. if value is 2 then its quit button
 	
-	var pScore=0;
-	var reScore=5;
-	var energy=3;
-	var damageTimer = 0;
-	
+	var pScore=0;	//player score
+	var reScore=5;	//score to reach for obstacle respawn
+	var energy=3;	//energy used to move boxes
+	var damageTimer = 0; //used to animate obstacle
+	//sets audio via id's from audio elements
 	var theme = document.getElementById("theme");
 	var moveSFX = document.getElementById("moveBox");
 	var deathSFX = document.getElementById("death");
@@ -100,6 +102,7 @@
 
 		setMenu();
 		
+		//sets up boxes and obstacles
 		boxes.push({
 			x: 180+(Math.floor((Math.random() * 4)))*20,
 			y: (Math.floor((Math.random() * 6) + 2))*20,
@@ -159,7 +162,7 @@
 		ctx.fillText("- When walking into a box, press space at the same time to move it.", 0, 125);
 		ctx.fillText("- Boxes require energy to move, some require more than others.", 0, 150);
 	}
-
+	//draws score in top left
 	function drawScore()
 	{
 		ctx.clearRect(0, 0, width/3, height);
@@ -168,7 +171,7 @@
 		ctx.textAlign = "left";
 		ctx.fillText("Score: "+ pScore, 0, 15);
 	}
-	
+	//draws word "Energy" on top right as part of energy UI
 	function drawEnergy()
 	{
 		ctx.clearRect(width-width/3, 0, width/3, height);
@@ -205,7 +208,7 @@
 		
 		update();
 	}
-	
+	//sets up end game menu
 	function quitGame(){
 		ctx.clearRect(0, 0, width, height);
 		buttonClicked = 0;
@@ -217,6 +220,7 @@
 		ctx.font = "30px Comic Sans MS";
 		ctx.fillStyle = "red";
 		ctx.textAlign = "left";
+		//sets text based on end conditions
 		if(pScore==30){
 			ctx.fillText("You Win!", 0, 25);
 		}
@@ -224,7 +228,7 @@
 			ctx.fillText("Game Over", 0, 25);
 		}
 		ctx.fillText("Score: "+ pScore, 0, 50);	
-				
+		//creates button for returning to menu
 		menuImage.src = "menubutton.png";
 		menuImage.addEventListener('load', e => {
 		  ctx.drawImage(menuImage, buttonX[2], buttonY[2], buttonWidth[2], buttonHeight[2]);
@@ -242,7 +246,7 @@
 		reScore=5;
 		kill=null;
 	}
-	
+	//moves based on buttons
 	function mouseButton()
 	{
 		//movements
@@ -307,7 +311,7 @@
 	function update() {	
 		ctx.clearRect(0, 20, width, height);
 		
-		//displays energy amount as an image
+		//displays energy amount as an image for energy UI
 		if(energy>=1)
 		ctx.drawImage(energyImg, width-width/3+70, 0, 20, 20);		
 		if(energy>=2)
@@ -322,7 +326,7 @@
 		ctx.drawImage(energyReImg,width-width/3+120, 0, 20, 20);
 		
 		
-		
+		//ends game if game over or plays if not game over
 		if(gameOver)
 		{
 			quitGame();
@@ -389,12 +393,12 @@
 			// show the boxes on canvas
 			ctx.rect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
 			ctx.drawImage(imgCrate, boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
-			
+			// show the special boxes on canvas
 			ctx.rect(specialBoxes[s].x, specialBoxes[s].y, specialBoxes[s].width, specialBoxes[s].height);
 			ctx.drawImage(imgCrate2, specialBoxes[s].x, specialBoxes[s].y, specialBoxes[s].width, specialBoxes[s].height);
 			
 			ctx.drawImage(imgPoint, placePoint.x, placePoint.y, placePoint.width, placePoint.height);
-			
+			// show the obstacle on canvas, animated
 			ctx.rect(damagePoint[d].x, damagePoint[d].y, damagePoint[d].width, damagePoint[d].height);
 			ctx.drawImage(dmgPoint, 250*damageTimer, 0, 250, 250, damagePoint[d].x, damagePoint[d].y, damagePoint[d].width, damagePoint[d].height);
 			
@@ -406,7 +410,8 @@
 			var complete2 = colCheck(placePoint, specialBoxes[s]);
 			//check if player collide with death object
 			var kill = colCheck(player, damagePoint[d]);
-						
+			
+			//if there is multiple boxes, move when they touch each other
 			if(i>0)
 			{
 				var boxCheck = colCheck(boxes[i],boxes[i-1]);
@@ -421,7 +426,7 @@
 				}				
 			}
 			
-			
+			//resets obstacle once it passed certain point
 			if(damagePoint[d].y>=200){
 			damagePoint[d].y=20;
 			}
@@ -429,9 +434,10 @@
 			{
 			damagePoint[d].y += damagePoint[d].speed;
 			}
-			
+			//checks for energy
 			if(energy>0)
 			{
+				//if colliding with boxes and space pressed, moves boxes
 				if (dir === "l" || dir === "r") 
 				{
 					player.velX = 0;
@@ -538,7 +544,7 @@
 			
 				drawScore();
 			}
-			
+			//checks if box is delivered, if so awards points
 			if(complete2 === "l" || complete2 === "r" || complete2 === "t" || complete2 === "b")
 				{
 				specialBoxes[s].x=(Math.floor((Math.random() * 15) + 5))*20;
@@ -558,7 +564,8 @@
 			
 				drawScore();
 			}
-						
+			
+			//ends level if death or max score occurs
 			if(pScore==30 || kill === "l" || kill === "r" || kill === "t" || kill === "b")
 			{
 				if(kill === "l" || kill === "r" || kill === "t" || kill === "b")
@@ -577,13 +584,14 @@
 				enableBut = false;
 				gameOver=true;
 			}
-			
+			//adds to obstacle respawn score, and respawns obstacles
 			if(pScore>=reScore)
 			{
 				dangerReset();
 				reScore+=5;
 			}
 			
+			//if boxes reach certain places, move elsewhere
 			if(boxes[i].x>=480){
 			boxes[i].x = 40}
 			else if(boxes[i].x<=0){
@@ -592,7 +600,7 @@
 			boxes[i].y = 60}
 			else if(boxes[i].y<=20){
 			boxes[i].y = 160}	
-			
+			//if special boxes reach certain places, move elsewhere
 			if(specialBoxes[s].x>=480){
 			specialBoxes[s].x = 40}
 			else if(specialBoxes[s].x<=0){
